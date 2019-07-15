@@ -16,11 +16,11 @@ npm i
 ```
 поправить строку подключения MongoDB. В примере создан экземпляр базы на mlab.com
 
-\<login\> -  логин пользователя
-\<password\> - пароль
-<your cluster name> - имя вашего кластера на mlab.com
+\<login\> -  логин пользователя </br>
+\<password\> - пароль</br>
+\<your cluster name\> - имя вашего кластера на mlab.com</br>
 
-"mongodb+srv://<login>:<password>@<your cluster name>.mongodb.net/test?retryWrites=true&w=majority"
+"mongodb+srv://\<login\>:\<password\>@\<your cluster name\>.mongodb.net/test?retryWrites=true&w=majority"
 
 ```sh
 npm start
