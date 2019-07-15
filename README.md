@@ -15,6 +15,7 @@ cd apollo-CRUD-demo-mongodb
 npm i
 ```
 поправить строку подключения MongoDB. В примере создан экземпляр базы на mlab.com
+<br>
 <login> -  логин пользователя
 <password> - пароль
 <your cluster name> - имя вашего кластера на mlab.com
