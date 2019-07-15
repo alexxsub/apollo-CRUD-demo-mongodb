@@ -13,6 +13,11 @@
 git clone https://github.com/alexxsub/apollo-CRUD-demo-mongodb.git
 cd apollo-CRUD-demo-mongodb
 npm i
+```
+поправить строку подключения MongoDB. В примере создан экземпляр базы на mlab.com
+
+```sh
 npm start
 ```
+
 потом открываем [http://localhost:4000/graphql](http://localhost:4000/graphql)
