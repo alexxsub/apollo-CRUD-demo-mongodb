@@ -28,7 +28,7 @@ const Phone = mongoose.model("Phone", PhoneSchema);
 
 mongoose
   .connect(
-    "mongodb+srv://admin:admin2019@testmongodb-kgrku.mongodb.net/test?retryWrites=true&w=majority",
+    "mongodb://localhost:27017/phones_simple",
     { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false }
   )
   .then(() => console.log("🚀   База взлетела!"))
@@ -144,7 +144,7 @@ const resolvers = {
         { $set: { number, name } },
         { new: true }
       );
-      // return await Phone.find({});
+    
       return updatedPhone;
     },
     updatePhoneByID: async (_, { id, number, name }, { Phone }) => {
@@ -160,16 +160,17 @@ const resolvers = {
     }
   }
 };
-//create new Apollo server
+//Новый экземпляр аполло
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: { Phone }
 });
-//start it
+//Читаем параметры из скрипта запуска
 const HOST = process.argv[2];
 const PORT = process.argv[3];
 
 server.listen({ host: HOST, port: PORT }).then(({ url }) => {
-  console.log(`🚀   Взлетел ${url}`);
+  console.log(`🚀   Взлетел сервер ${url}`);
 });
+//  sudo netstat -tulpn|grep 4000
