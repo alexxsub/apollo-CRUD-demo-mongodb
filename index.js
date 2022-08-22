@@ -202,8 +202,8 @@ const server = new ApolloServer({
   context: { Phone }
 });
 //Читаем параметры из скрипта запуска
-const HOST = process.argv[2];
-const PORT = process.argv[3];
+const HOST = process.argv[2]||process.env.HOST;
+const PORT = process.argv[3]||process.env.PORT;
 
 server.listen({ host: HOST, port: PORT }).then(({ url }) => {
   console.log(`🚀   Взлетел сервер ${url}`);
