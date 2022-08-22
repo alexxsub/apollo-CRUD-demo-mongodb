@@ -1,5 +1,9 @@
 const { ApolloServer, gql } = require("apollo-server");
 const mongoose = require("mongoose");
+
+require('dotenv').config({ path: '.env' })
+
+
 // создаем новую схему БД
 // creating new schema of data base
 const PhoneSchema = new mongoose.Schema({
@@ -32,7 +36,7 @@ const Phone = mongoose.model("Phone", PhoneSchema);
 
 mongoose
   .connect(
-    "mongodb://localhost:27017/phones_simple",
+    process.env.MONGO_URI,
     { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false }
   )
   .then(() => console.log("🚀   База взлетела!"))
