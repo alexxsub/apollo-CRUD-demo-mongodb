@@ -2,7 +2,7 @@
   "name": "apollo-graphql-crud-phones-mongodb",
   "description": "Demo for basics of Appolo graphql ",
   "dependencies": {
-    "apollo-server": "^2.1.0",
+    "apollo-server": "^2.25.3",
     "dotenv": "^16.0.1",
     "graphql": "14.0.2",
     "mongoose": "5.6.3"
