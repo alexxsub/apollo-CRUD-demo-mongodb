@@ -1,11 +1,12 @@
 const { ApolloServer, gql } = require("apollo-server");
 const mongoose = require("mongoose");
-
+// создаем новую схему БД
+// creating new schema of data base
 const PhoneSchema = new mongoose.Schema({
   number: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, // number - должен быть уникальным в случае поиска по нему как ключу
     trim: true
   },
   name: {
@@ -13,17 +14,20 @@ const PhoneSchema = new mongoose.Schema({
     required: true
   }
 });
-
+//Добавляем индекс для текстового поиска
 PhoneSchema.index({
   "$**": "text"
 });
 
 // Create presave trigger for example
+// пример, как описать триггер на событие. Например, можно шифровать данные пере сохранением в БД, пароль, как вариант
 PhoneSchema.pre("save", function(next) {
   //this.<fieldname>
   next();
 });
 
+// переменная контекста
+// context variable
 const Phone = mongoose.model("Phone", PhoneSchema);
 
 mongoose
@@ -35,51 +39,82 @@ mongoose
   .catch(err => console.error(err));
 
 //types for graphql
+// Описываем API на gql языке. 
 const typeDefs = gql`
   type Query {
     """
     Get all phones
+    Получить все записи
     """
     Phones: [Phone]
     """
     Search phones
+    Поиск телефона
     """
     searchPhones(searchTerm: String): [Phone]
     """
-    Find name of person in phone list
+    Find record of phone list by number
+    Поиск записи по номеру
     """
-    findName(number: String): Phone
+    findNamber(number: String): Phone
   }
   type Phone {
     id: ID
     """
     Number of phone
+    Номер телефона
     """
     number: String
     """
     Name of person
+    Имя персоны
     """
     name: String
   }
-  input inputPhone {
+  # type for creating new record, all creation params are required
+  # тип ввода для создания записи, все параметры обязательны
+  input AddInputPhone {
     number: String!
+    name: String!
+  }
+  # type for updating record, params are not required that is how it differs from creation parameters AddInputPhone
+  # тип ввода длдя изменений, параметры не обязательны, тем и отличается от параметров создания
+  input UpdateInputPhone {
+    number: String
     name: String
   }
   type Mutation {
+    #example with separated params
+    #Пример передачи параметров раздельно
     addPhone(number: String, name: String): Phone!
-    addPhoneByInput(input: inputPhone): Phone! #example with input type
-    deletePhone(number: String): [Phone]
-    deletePhoneByID(id: ID): Boolean
-    updatePhoneByID(id: ID, number: String, name: String): Phone!
-    updatePhone(number: String, name: String): Phone! #example with separated params
+    
+    #example with input type
+    #Пример передачи параметров объектом, отдельный тип
+    addPhoneByInput(input: AddInputPhone): Phone! 
+    
+    # deleting record after find number that must be uniqie
+    # Удаление записи при условии, что номер - это уникальное значение
+    deletePhone(number: String): [Phone] 
+    
+    # id - primary key and unique
+    # id  -это основной уникальный ключ, по нему можно идентифицировать однозначно запись
+    deletePhoneByID(id: ID): Boolean 
+
+    # Обновление записи
+    updatePhoneByID(id: ID, input:UpdateInputPhone): Phone!
+    #example with separated params
+    #Обновление через раздельные параметры
+    updatePhone(number: String, name: String): Phone! 
   }
 `;
-//resolvers for graphql
+//resolvers for graphql API
+// реализация методов API
 const resolvers = {
   Phone: {
     name: root => {
       if (root.number === "5555") {
         //find number 5555 and hide name of person
+        // пример, как поменять данные на выоде. Например, можно не показывать нежелательные
         return "*censored*";
       } else {
         return root.name;
@@ -96,7 +131,7 @@ const resolvers = {
     },
     searchPhones: async (_, { searchTerm }, { Phone }) => {
       var phones = [];
-      //console.log(searchTerm);
+
       if (searchTerm) {
         phones = await Phone.find(
           { $text: { $search: searchTerm } },
@@ -111,7 +146,7 @@ const resolvers = {
 
       return phones;
     },
-    findName: async (_, { number }, { Phone }) =>
+    findNamber: async (_, { number }, { Phone }) =>
       await Phone.findOne({ number })
   },
   Mutation: {
@@ -123,16 +158,12 @@ const resolvers = {
       return newPhone;
     },
     addPhoneByInput: async (_, { input }, { Phone }) => {
-      //console.log(input);
-      await new Phone({
-        number: input.number,
-        name: input.name
-      }).save();
-      return await Phone.find({});
+      return await  new Phone(input).save();
+      
     },
     deletePhone: async (_, { number }, { Phone }) => {
-      await Phone.findOneAndRemove({ number });
-      return await Phone.find({});
+     return await Phone.findOneAndRemove({ number });
+      
     },
     deletePhoneByID: async (_, { id }, { Phone }) => {
       const phone = await Phone.findByIdAndRemove({ _id: id });
@@ -147,10 +178,10 @@ const resolvers = {
     
       return updatedPhone;
     },
-    updatePhoneByID: async (_, { id, number, name }, { Phone }) => {
-      const updatedPhone = await Phone.findOneAndUpdate(
+    updatePhoneByID: async (_, { id, input }, { Phone }) => {
+      const updatedPhone = await Phone.findByIdAndUpdate(
         { _id: id },
-        { $set: { number, name } },
+          input ,
         { new: true },
         (err, res) => {
           if (err) console.error(err);
